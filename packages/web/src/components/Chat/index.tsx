@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 import MessageGroup from './MessageGroup';
 import { Container, Header, Conversation, Message, Input } from './styles';
@@ -6,24 +6,32 @@ import { useConversation } from '../../hooks/conversation';
 
 const Chat: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const conversationElement = useRef<HTMLUListElement>(null);
 
   const [typeMessage, setTypedMessage] = useState('');
 
   const { messages, sendMessage } = useConversation();
 
   const handleSend = useCallback(() => {
-    setTypedMessage(message => {
-      sendMessage(message);
-      return '';
-    });
-  }, [sendMessage]);
+    sendMessage(typeMessage);
+    setTypedMessage('');
+  }, [sendMessage, typeMessage]);
+
+  useEffect(() => {
+    const element = conversationElement.current;
+    if (element) {
+      if (element.scrollTop < element.scrollHeight - element.offsetHeight) {
+        element.scrollTop += element.scrollHeight - element.offsetHeight;
+      }
+    }
+  }, [conversationElement, messages]);
 
   return (
     <Container>
       <Header>
         <h1>Chat</h1>
       </Header>
-      <Conversation>
+      <Conversation ref={conversationElement}>
         {messages.map(messageGroup => (
           <MessageGroup key={messageGroup.id} type={messageGroup.owner}>
             {messageGroup.content.map((message, index) => (

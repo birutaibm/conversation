@@ -29,7 +29,8 @@ export const Header = styled.div`
 
 export const Conversation = styled.ul`
   background-color: #ddd;
-  flex: 1;
+  flex: auto;
+  overflow-y: auto;
   width: 100%;
   list-style: none;
 `;

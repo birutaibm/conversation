@@ -1,32 +1,57 @@
 import { Request, Response } from 'express';
 
-import IMessagesRepository from '../repositories/IMessagesRepository';
 import * as Provider from '../repositories/provider';
 import MessagesRecover from '../services/MessagesRecover';
 import MessagesCreator from '../services/MessagesCreator';
+import IConversationsRepository from '../repositories/IConversationsRepository';
 
 export default class MessageController {
-  private readonly recover: MessagesRecover;
+  private repository: IConversationsRepository;
 
-  private readonly creator: MessagesCreator;
+  private recover: MessagesRecover;
 
-  constructor(messagesRepository?: IMessagesRepository) {
-    const repository =
-      messagesRepository || Provider.IMessagesRepository.implementation;
-    this.recover = new MessagesRecover(repository);
-    this.creator = new MessagesCreator(repository);
+  private creator: MessagesCreator;
+
+  constructor(repository?: IConversationsRepository) {
+    if (repository) {
+      this.repository = repository;
+    }
+  }
+
+  private getMessagesRepository(): IConversationsRepository {
+    if (!this.repository) {
+      this.repository = Provider.IConversationsRepository.implementation;
+    }
+    return this.repository;
+  }
+
+  private getMessagesRecover(): MessagesRecover {
+    if (!this.recover) {
+      this.recover = new MessagesRecover(this.getMessagesRepository());
+    }
+    return this.recover;
+  }
+
+  private getMessagesCreator(): MessagesCreator {
+    if (!this.creator) {
+      this.creator = new MessagesCreator(this.getMessagesRepository());
+    }
+    return this.creator;
   }
 
   public async index(request: Request, response: Response): Promise<Response> {
     const { conversationId } = request.params;
-    const messages = await this.recover.recoverAll(conversationId);
+    const messages = await this.getMessagesRecover().recoverAll(conversationId);
     return response.json(messages);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const { conversationId } = request.params;
     const { message } = request.body;
-    const answer = await this.creator.create({ conversationId, message });
+    const answer = await this.getMessagesCreator().create({
+      conversationId,
+      message,
+    });
     return response.status(201).json(answer);
   }
 }

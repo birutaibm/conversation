@@ -11,9 +11,9 @@ export default class ConversationsCreator {
 
   public async create(): Promise<IAnswer> {
     const answer = 'Olá humano, me chamo Baby Bot, prazer';
-    // 'Não compreendo a linguagem dos humanos, mas enviarei ao meu mestre, o Criador, qualquer mensagem que você me mandar';
     const conversationInfo: Omit<IConversation, 'id'> = {
       emailConfirm: false,
+      disclosure: false,
       messages: [
         {
           owner: 'robot',
@@ -21,11 +21,6 @@ export default class ConversationsCreator {
         },
       ],
     };
-    // const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-    // const email = message.split(' ').find(word => word.match(re));
-    // if (email) {
-    //   conversationInfo.email = email;
-    // }
     const conversation = await this.repository.save(conversationInfo);
     return {
       id: conversation.id,

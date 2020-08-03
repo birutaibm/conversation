@@ -5,6 +5,7 @@ import IConversation from '../IConversation';
 const ConversationSchema = new Schema({
   email: String,
   emailConfirm: Boolean,
+  disclosure: Boolean,
   messages: [
     {
       owner: String,
@@ -24,6 +25,7 @@ export function extractInfo(
       id: registry._id,
       email: registry.email,
       emailConfirm: registry.emailConfirm,
+      disclosure: registry.disclosure,
       messages: registry.messages,
     };
   }

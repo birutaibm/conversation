@@ -1,5 +1,6 @@
 import IConversationsRepository from '../IConversationsRepository';
 import IConversation from '../../models/IConversation';
+import IMessage from '../../models/IMessage';
 
 export default class FakeConversationsRepository
   implements IConversationsRepository {
@@ -39,5 +40,31 @@ export default class FakeConversationsRepository
       return true;
     }
     return false;
+  }
+
+  public async update(
+    id: string,
+    conversation: Partial<Omit<IConversation, 'id'>>,
+  ): Promise<IConversation> {
+    return Object.assign(
+      this.conversations.find(candidate => candidate.id === id),
+      conversation,
+    );
+  }
+
+  public async findMessagesByConversationId(
+    conversationId: string,
+  ): Promise<IMessage[]> {
+    const { messages } = await this.findById(conversationId);
+    return messages;
+  }
+
+  public async addMessagesToConversation(
+    conversationId: string,
+    ...messages: IMessage[]
+  ): Promise<void> {
+    const conversation = await this.findById(conversationId);
+    const allMessages = [...conversation.messages, ...messages];
+    await this.update(conversation.id, { messages: allMessages });
   }
 }

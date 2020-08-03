@@ -43,8 +43,9 @@ export const ConversationProvider: React.FC = ({ children }) => {
 
   const putMessage = useCallback(
     async (message: string): Promise<string> => {
-      console.log('add message');
-      const { data } = await api.put(`/conversation/${id}`, { message });
+      const { data } = await api.post(`/conversations/${id}/messages`, {
+        message,
+      });
       return data.message;
     },
     [id],
@@ -75,7 +76,7 @@ export const ConversationProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     const create = async (): Promise<string> => {
-      const { data } = await api.post('/conversation');
+      const { data } = await api.post('/conversations');
       setId(data.id);
       return data.message;
     };
